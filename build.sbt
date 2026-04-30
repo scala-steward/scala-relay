@@ -38,16 +38,29 @@ lazy val root = project
 
 lazy val `scala-relay-build` = project
   .settings(commonSettings)
+  .settings(scalaRelayBuildSettings)
   .settings(
-    libraryDependencies ++= Seq(Dependencies.Caliban, Dependencies.ScalaMeta),
     scalaVersion       := Versions.Scala212,
-    crossScalaVersions := Seq(Versions.Scala212, Versions.Scala3)
+    crossScalaVersions := Seq(Versions.Scala212)
+  )
+
+lazy val `scala-relay-build-mill` = project
+  .in(file("scala-relay-build"))
+  .settings(commonSettings)
+  .settings(scalaRelayBuildSettings)
+  .settings(
+    name                := "scala-relay-build",
+    target              := baseDirectory.value / "target-mill",
+    scalaVersion        := Versions.Scala38,
+    crossScalaVersions  := Seq(Versions.Scala38),
+    publish / skip      := true,
+    publishLocal / skip := true
   )
 
 lazy val `mill-scala-relay` = project
   .settings(commonSettings)
-  .dependsOn(`scala-relay-build`)
-  .aggregate(`scala-relay-build`)
+  .dependsOn(`scala-relay-build-mill`)
+  .aggregate(`scala-relay-build-mill`)
   .settings(
     libraryDependencies ++= Seq(
       "com.lihaoyi"           %% "mill-libs-scalalib" % Versions.Mill,
@@ -187,6 +200,10 @@ lazy val macroAnnotationSettings = Seq(
       case _             => Seq.empty
     }
   }
+)
+
+lazy val scalaRelayBuildSettings: Seq[Setting[_]] = Seq(
+  libraryDependencies ++= Seq(Dependencies.Caliban, Dependencies.ScalaMeta)
 )
 
 lazy val commonSettings: Seq[Setting[_]] = Seq(
